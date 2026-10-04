@@ -1,84 +1,53 @@
-# Excel Sales Automation
+# 📊 Excel Sales Automation
 
-Production-ready Python project for automating monthly Excel sales consolidation, data cleaning, and executive reporting.
+**A Python ETL pipeline that merges monthly Excel sales files, cleans them with explicit business rules and generates a formatted multi-sheet executive report — in one command.**
+
+[![Live demo](https://img.shields.io/badge/Live%20demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://fahan-excel.streamlit.app)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Fatima%20Zahrae%20Ahannuk-0ea5e9)](https://fatima-zahrae-ahannuk.vercel.app/projects/excel)
+
+## Try it
+👉 **https://fahan-excel.streamlit.app** — run the pipeline on the sample files (or upload your own), inspect every cleaning step and download the generated report.
+On the sample data: **1,389 raw rows → 1,254 clean rows**, 10 products, 75 countries.
 
 ## Problem
-Manual processing of monthly sales spreadsheets is repetitive and error-prone:
-- Mixed date formats (string, datetime, Excel serial)
-- Inconsistent product naming
-- Missing values and duplicate rows
-- Time-consuming report preparation
+Consolidating monthly sales spreadsheets by hand is slow and error-prone:
+- dates stored as text, datetime **or Excel serial numbers** in the same column,
+- inconsistent product and category names (`laptop`, ` Laptop `, `LAPTOP`),
+- missing quantities / prices and duplicate rows,
+- the same report rebuilt manually every month.
 
-## Solution
-This project provides a deterministic, reusable pipeline that:
-- Discovers Excel files in `data/`
-- Merges and cleans records with standardized business rules
-- Computes derived metrics (`total_price = quantity * price`)
-- Produces clean data and a multi-sheet business report in `output/`
-
-## Tech Stack
-- Python 3.10+
-- pandas, numpy
-- openpyxl, xlsxwriter
-- Faker (demo data generation)
-
-## Architecture
+## Pipeline
 ```text
-excel_automation_project/
-├── data/                         # input monthly files
-├── output/                       # generated artifacts
-├── screenshots/                  # demo images for GitHub README
-├── src/
-│   ├── automate_excel.py         # backward-compatible wrapper
-│   ├── generate_fake_data.py     # backward-compatible wrapper
-│   ├── main.py                   # src-level entry point
-│   └── excel_automation/
-│       ├── config.py             # centralized settings and paths
-│       ├── pipeline.py           # orchestration layer
-│       ├── io/
-│       │   └── excel_io.py       # file discovery and Excel loading
-│       ├── data_processing/
-│       │   └── cleaning.py       # cleaning and standardization logic
-│       ├── reporting/
-│       │   └── report_generator.py # report creation/formatting
-│       ├── data_generation/
-│       │   └── fake_data_generator.py # synthetic dataset generator
-│       └── utils/
-│           └── logger.py         # shared logging utility
-├── main.py                       # repository entry point
-├── requirements.txt
-└── .gitignore
+data/*.xlsx ──► discover & merge ──► clean ──► compute revenue ──► output/clean_data.xlsx
+                                                               └─► output/sales_report.xlsx
+```
+**Cleaning rules**: unified date parsing (text / datetime / Excel serial) · trimmed + normalised product and category names · missing prices and quantities imputed with the **per-product median** · duplicates removed · `total_price = quantity × price`.
+
+**Report** (`sales_report.xlsx`): *Overview* KPIs · *Top Products* · *Revenue by Country* · *Revenue by Category* · *Clean Data*.
+
+## Tech stack
+Python · pandas · NumPy · openpyxl · XlsxWriter · Faker (sample data) · Streamlit (demo)
+
+## Project structure
+```text
+data/                         # monthly input files (sample: Jan, Feb, Mar)
+src/excel_automation/
+├── io/excel_io.py            # file discovery and loading
+├── data_processing/cleaning.py
+├── reporting/report_generator.py
+├── data_generation/          # realistic messy sample data (Faker)
+├── pipeline.py               # orchestration
+└── config.py                 # paths and settings
+main.py                       # entry point
 ```
 
-## Results
-- Consolidated and cleaned dataset: `output/clean_data.xlsx`
-- Executive report: `output/sales_report.xlsx` with:
-  - Overview KPIs
-  - Top Products
-  - Revenue by Country
-  - Revenue by Category
-  - Clean Data snapshot
-
-## Run Locally
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. (Optional) Regenerate demo data:
-   ```bash
-   python src/generate_fake_data.py
-   ```
-3. Run automation (recommended):
-   ```bash
-   python main.py
-   ```
-
-Backward-compatible commands still work:
+## Run locally
 ```bash
-python src/automate_excel.py
-python src/main.py
+pip install -r requirements.txt
+python src/generate_fake_data.py   # optional: regenerate messy sample files in data/
+python main.py                     # → output/clean_data.xlsx + output/sales_report.xlsx
 ```
+Drop next month's file into `data/` and run `python main.py` again.
 
-## Notes
-- This is a data automation/analytics pipeline (not an ML model training project).
-- Place new monthly source files into `data/` and rerun the pipeline.
+## Author
+**Fatima Zahrae Ahannuk** — Big Data & AI engineering student · [Portfolio](https://fatima-zahrae-ahannuk.vercel.app) · [LinkedIn](https://www.linkedin.com/in/fatima-zahrae-ahannuk-b936b1351/) · [GitHub](https://github.com/fahan860)
